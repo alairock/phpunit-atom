@@ -1,15 +1,16 @@
 {
   "name": "phpunit",
   "main": "./lib/phpunit",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": false,
   "description": "A simple PHPUnit test runner. Will be prettified and expanded soon. Currently only uses the console log for output.",
-  "activationEvents": ["phpunit:test"],
+  "activationEvents": [
+    "phpunit:test"
+  ],
   "repository": "https://github.com/alairock/phpunit-atom",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
