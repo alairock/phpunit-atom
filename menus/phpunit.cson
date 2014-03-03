@@ -1,0 +1,16 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+      'Enable phpunit': 'phpunit:test'
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'phpunit'
+      'submenu': [
+        { 'label': 'Toggle', 'command': 'phpunit:test' }
+      ]
+    ]
+  }
+]
