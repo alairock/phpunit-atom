@@ -14,7 +14,9 @@ module.exports =
 
     check: ->
         phpunitPanel = atom.workspaceView.find(".phpunit-container")
+        atom.workspaceView.find(".phpunit-contents").html("")
         atom.workspaceView.prependToBottom new PHPUnitView unless phpunitPanel.is(":visible")
+
 
         projectPath = atom.project.getPath()
         command = atom.config.get "phpunit.phpunitExecutablePath"
@@ -23,13 +25,13 @@ module.exports =
         tail.stdout.on "data", (data) ->
             breakTag = "<br>"
             data = (data + "").replace /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, "$1" + breakTag + "$2"
-            atom.workspaceView.find(".phpunit-container").append("#{data}")
-            atom.workspaceView.find(".phpunit-container").scrollToBottom()
+            atom.workspaceView.find(".phpunit-contents").append("#{data}")
+            atom.workspaceView.find(".phpunit-contents").scrollToBottom()
 
         tail.stderr.on "data", (data) ->
             console.log "stderr: " + data
 
         tail.on "close", (code) ->
-            atom.workspaceView.find(".phpunit-container").append("<br>Complete<br>")
-            atom.workspaceView.find(".phpunit-container").scrollToBottom()
+            atom.workspaceView.find(".phpunit-contents").append("<br>Complete<br>")
+            atom.workspaceView.find(".phpunit-contents").scrollToBottom()
             console.log "child process exited with code " + code

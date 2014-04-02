@@ -9,6 +9,7 @@ class PHPUnitView extends View
         @button click: 'destroy', class: 'btn btn-error pull-right', =>
             @span class: "icon icon-x"
             @span 'close'
+        @div class: "phpunit-contents"
 
   # Internal: Destroy the view and tear down any state.
   #
