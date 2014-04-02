@@ -9,12 +9,6 @@ module.exports =
     configDefaults:
         phpunitExecutablePath: '/usr/local/bin/phpunit'
 
-    # Internal: The build matrix bottom panel view.
-    buildMatrixView: null
-
-    # Internal: The build status status bar entry view.
-    buildStatusView: null
-
     activate: ->
       atom.workspaceView.command "phpunit:test", => @check()
 
@@ -36,6 +30,6 @@ module.exports =
             console.log "stderr: " + data
 
         tail.on "close", (code) ->
-            atom.workspaceView.find(".phpunit-container").append("<br>To close this window: Press ctrl+p then press x ")
+            atom.workspaceView.find(".phpunit-container").append("<br>Complete<br>")
             atom.workspaceView.find(".phpunit-container").scrollToBottom()
             console.log "child process exited with code " + code

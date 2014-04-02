@@ -10,10 +10,6 @@ class PHPUnitView extends View
             @span class: "icon icon-x"
             @span 'close'
 
-
-  initialize: ->
-    atom.workspaceView.command "phpunit:destroy", => @destroy()
-
   # Internal: Destroy the view and tear down any state.
   #
   # Returns nothing.
