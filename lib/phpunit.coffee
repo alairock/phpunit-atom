@@ -3,7 +3,7 @@ path = require 'path'
 {spawn} = require 'child_process'
 
 
-TestStatusView = require './test-status-view'
+PHPUnitView = require './test-status-view'
 
 module.exports =
     configDefaults:
@@ -20,7 +20,7 @@ module.exports =
 
     check: ->
         phpunitPanel = atom.workspaceView.find(".phpunit-container")
-        atom.workspaceView.prependToBottom new TestStatusView unless phpunitPanel.is(":visible")
+        atom.workspaceView.prependToBottom new PHPUnitView unless phpunitPanel.is(":visible")
 
         projectPath = atom.project.getPath()
         command = atom.config.get "phpunit.phpunitExecutablePath"

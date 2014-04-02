@@ -2,10 +2,13 @@
 
 module.exports =
 # Internal: The main view for displaying the status from Travis CI.
-class TestStatusView extends View
+class PHPUnitView extends View
   # Internal: Build up the HTML contents for the fragment.
   @content: ->
-    @div class: "phpunit-container"
+    @div class: "phpunit-container", =>
+        @button click: 'destroy', class: 'btn btn-error pull-right', =>
+            @span class: "icon icon-x"
+            @span 'close'
 
 
   initialize: ->
