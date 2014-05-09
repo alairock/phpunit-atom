@@ -2,7 +2,6 @@ fs = require 'fs'
 path = require 'path'
 {spawn} = require 'child_process'
 
-
 PHPUnitView = require './test-status-view'
 
 module.exports =
@@ -20,7 +19,7 @@ module.exports =
 
         projectPath = atom.project.getPath()
         command = atom.config.get "phpunit.phpunitExecutablePath"
-        tail = spawn(command, ['--configuration ' + projectPath])
+        tail = spawn(command, ['--configuration', projectPath])
 
         tail.stdout.on "data", (data) ->
             breakTag = "<br>"
