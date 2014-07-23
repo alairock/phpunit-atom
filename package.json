@@ -3,7 +3,7 @@
   "main": "./lib/phpunit",
   "version": "1.0.6",
   "private": false,
-  "description": "A simple PHPUnit test runner. Will be prettified and expanded soon. Currently only uses the console log for output.",
+  "description": "A simple PHPUnit test runner.",
   "repository": "https://github.com/alairock/phpunit-atom",
   "license": "MIT",
   "engines": {
