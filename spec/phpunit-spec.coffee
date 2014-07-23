@@ -1,12 +1,8 @@
+{WorkspaceView} = require 'atom'
 Phpunit = require '../lib/phpunit'
 
-# Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
-#
-# To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
-# or `fdescribe`). Remove the `f` to unfocus the block.
-
 describe "Phpunit", ->
-  activationPromise = null
+  [activationPromise] = []
 
   beforeEach ->
     atom.workspaceView = new WorkspaceView
@@ -14,7 +10,7 @@ describe "Phpunit", ->
 
   describe "when the phpunit:toggle event is triggered", ->
     it "attaches and then detaches the view", ->
-      expect(atom.workspaceView.find('.phpunit')).not.toExist()
+      expect(atom.workspaceView.find('.phpunit-container')).not.toExist()
 
       # This is an activation event, triggering it will cause the package to be
       # activated.
@@ -24,6 +20,4 @@ describe "Phpunit", ->
         activationPromise
 
       runs ->
-        expect(atom.workspaceView.find('.phpunit')).toExist()
-        atom.workspaceView.trigger 'phpunit:test'
-        expect(atom.workspaceView.find('.phpunit')).not.toExist()
+        expect(atom.workspaceView.find('.phpunit-container')).toExist()
