@@ -9,7 +9,7 @@
     'submenu': [
       'label': 'phpunit'
       'submenu': [
-        { 'label': 'Toggle', 'command': 'phpunit:test' }
+        { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
       ]
     ]
   }
