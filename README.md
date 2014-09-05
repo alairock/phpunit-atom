@@ -1,3 +1,6 @@
+#Looking for maintainer
+I don't have time for this project anymore. This has the fancy 'phpunit' namespace on atom.io so I would relinquish that to you, so long as you promise to take care of it :) Message me if you are interested.
+
 #PHPUnit for Atom
 Run your PHPUnit tests right within the Atom Editor!
 
