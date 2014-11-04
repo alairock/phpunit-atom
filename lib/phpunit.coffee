@@ -7,10 +7,20 @@ PHPUnitView = require './test-status-view'
 module.exports =
     configDefaults:
         phpunitExecutablePath: '/usr/local/bin/phpunit'
-        phpunitExecutableOptions: ''
+        phpunitOptions: ''
+        ExecuteOnSave: false
 
     activate: ->
       atom.workspaceView.command "phpunit:test", => @check()
+
+      atom.workspace.eachEditor (editor) =>
+         buffer = editor.getBuffer()
+         buffer.on 'saved', => @save()
+
+
+    save: ->
+        onSave = atom.config.get "phpunit.ExecuteOnSave"
+        if onSave == true then @check()
 
     check: ->
         phpunitPanel = atom.workspaceView.find(".phpunit-container")
