@@ -1,16 +1,17 @@
 # See https://atom.io/docs/latest/creating-a-package#menus for more details
-'context-menu':
-  '.overlayer':
-      'Run PHPUnit Test': 'phpunit:test'
-
 'menu': [
-  {
-    'label': 'Packages'
-    'submenu': [
-      'label': 'phpunit'
-      'submenu': [
-        { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
-      ]
-    ]
-  }
+    {
+        'label': 'Packages'
+        'submenu': [
+            'label': 'phpunit'
+            'submenu': [
+                { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
+            ]
+        ]
+    }
 ]
+
+'context-menu':
+    '.overlayer': [
+            { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
+    ]

@@ -1,25 +1,31 @@
-fs = require 'fs'
-path = require 'path'
 {spawn} = require 'child_process'
 
 PHPUnitView = require './test-status-view'
 
 module.exports =
-    configDefaults:
-        phpunitExecutablePath: '/usr/local/bin/phpunit'
-        phpunitOptions: ''
-        ExecuteOnSave: false
+    config:
+        execPath:
+            title: 'phpUnit Executable Path'
+            type: 'string'
+            default: '/usr/local/bin/phpunit'
+        execOptions:
+            title: 'phpUnit Command Line Options'
+            type: 'string'
+            default: ''
+        runOnSave:
+            title: 'Run on Save'
+            type: 'boolean'
+            default: false
 
     activate: ->
-      atom.workspaceView.command "phpunit:test", => @check()
+        console.log "activate phpunit"
+        atom.workspaceView.command "phpunit:test", => @check()
+        atom.workspace.observeTextEditors (editor) =>
+            if editor.getGrammar().name == 'PHP'
+                editor.getBuffer()?.onDidSave => @save()
 
-      atom.workspace.eachEditor (editor) =>
-         buffer = editor.getBuffer()
-         buffer.on 'saved', => @save()
-
-
-    save: ->
-        onSave = atom.config.get "phpunit.ExecuteOnSave"
+    save: (editor)->
+        onSave = atom.config.get "phpunit.runOnSave"
         if onSave == true then @check()
 
     check: ->
@@ -27,22 +33,21 @@ module.exports =
         atom.workspaceView.find(".phpunit-contents").html("")
         atom.workspaceView.prependToBottom new PHPUnitView unless phpunitPanel.is(":visible")
 
-
         projectPaths = atom.project.getPaths()
-        command = atom.config.get "phpunit.phpunitExecutablePath"
-        options = atom.config.get "phpunit.phpunitExecutableOptions"
-        tail = spawn command, ['--configuration', projectPaths + '/phpunit.xml', options]
+        exec = atom.config.get "phpunit.execPath"
+        options = atom.config.get "phpunit.execOptions"
+        tail = spawn exec, ['--configuration', projectPaths + '/phpunit.xml', options]
 
         tail.stdout.on "data", (data) ->
             breakTag = "<br>"
             data = (data + "").replace /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, "$1" + breakTag + "$2"
-            atom.workspaceView.find(".phpunit-contents").append("#{data}")
+            atom.workspaceView.find(".phpunit-contents").append(data)
             atom.workspaceView.find(".phpunit-contents").scrollToBottom()
 
         tail.stderr.on "data", (data) ->
-            console.log "stderr: " + data
             atom.workspaceView.find(".phpunit-contents").append("<br>Runtime error<br>Please open console<br>")
             atom.workspaceView.find(".phpunit-contents").scrollToBottom()
+            console.log "stderr: " + data
 
         tail.on "close", (code) ->
             atom.workspaceView.find(".phpunit-contents").append("<br>Complete<br>")
