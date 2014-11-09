@@ -41,12 +41,31 @@ describe "PHPUnit", ->
             beforeEach ->
                 atom.config.set("phpunit.runOnSave", true)
 
-            it "attaches and then detaches the view", ->
-                expect(atom.workspaceView.find('.phpunit-container')).not.toExist
-                editor.save()
+            describe "when the current buffer uses PHP grammar", ->
 
-                runs ->
-                    expect(atom.workspaceView.find('.phpunit-container')).toExist
+                beforeEach ->
+                    runs ->
+                        editor.setGrammar atom.syntax.selectGrammar('text.html.php')
+
+                it "attaches and then detaches the view", ->
+                    expect(atom.workspaceView.find('.phpunit-container')).not.toExist
+                    buffer.save()
+
+                    runs ->
+                        expect(atom.workspaceView.find('.phpunit-container')).toExist
+
+            describe "when the current buffer does not use PHP grammar", ->
+
+                beforeEach ->
+                    runs ->
+                        editor.setGrammar atom.syntax.selectGrammar('text.plain')
+
+                it "does nothing", ->
+                    expect(atom.workspaceView.find('.phpunit-container')).not.toExist
+                    buffer.save()
+
+                    runs ->
+                        expect(atom.workspaceView.find('.phpunit-container')).not.toExist
 
         describe "when the RunOnSave option is disabled", ->
 
