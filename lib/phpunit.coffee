@@ -32,7 +32,7 @@ module.exports =
             @check() if editorGrammar in @runnableGrammar
 
     check: ->
-        @initView
+        @initView()
 
         tail = @runPHPUnit()
 
