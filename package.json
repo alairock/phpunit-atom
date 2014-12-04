@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "fs-plus": "2.x",
-    "temp": "~0.6.0"
+    "temp": "~0.6.0",
+    "jquery": "^2"
   }
 }

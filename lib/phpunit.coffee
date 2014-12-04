@@ -1,5 +1,5 @@
 {spawn} = require 'child_process'
-$ = require('atom').$
+$ = require 'jquery'
 PHPUnitView = require './phpunit-view'
 
 module.exports =
@@ -47,10 +47,8 @@ module.exports =
             @showOutput "<br>Complete<br>", false
 
     initView: ->
-        phpunitPanel = atom.workspaceView.find(".phpunit-container")
-        atom.workspaceView.find(".phpunit-contents").html("")
-        atom.workspaceView.prependToBottom new PHPUnitView unless phpunitPanel.is(":visible")
-        atom.workspaceView.find(".phpunit-contents").on 'click', 'a', ->
+        @phpunitPanel = new PHPUnitView
+        @phpunitPanel.on 'click', 'a', ->
             [uri, line] = "#{$(this).text()}".split ':'
             line = Number(line)
             line = 0 unless line
@@ -69,5 +67,5 @@ module.exports =
             data = data.replace /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, "$1" + breakTag + "$2"
             data = data.replace /\son line\s(\d+)/g, ":$1"
             data = data.replace /((([A-Z]\:)?([\\\/]+\w+)+(\.\w+)+(\:\d+)?))/g, "<a>$1</a>"
-        atom.workspaceView.find(".phpunit-contents").append data
-        atom.workspaceView.find(".phpunit-contents").scrollToBottom
+        @phpunitPanel.append data
+        @phpunitPanel.scrollToBottom
