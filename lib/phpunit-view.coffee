@@ -5,15 +5,16 @@ module.exports =
 class PHPUnitView extends View
     # Internal: Build up the HTML contents for the fragment.
     @content: ->
-        @div class: "phpunit-container", =>
-            @button click: 'destroy', class: 'btn btn-error pull-right', =>
-                @span class: "icon icon-x"
-                @span 'close'
-            @div class: "phpunit-contents"
+        @div class: 'phpunit-container', =>
+            @button click: 'close', class: 'btn btn-default pull-right', =>
+                @span class: 'icon icon-x'
+            @button click: 'clear', class: 'btn btn-default pull-right', =>
+                @span class: 'icon icon-trashcan'
+            @div class: 'phpunit-contents'
 
-    # Internal: Destroy the view and tear down any state.
-    #
-    # Returns nothing.
-    destroy: ->
+    close: ->
         if @isVisible()
           @detach()
+
+    clear: ->
+        #todo
