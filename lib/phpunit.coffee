@@ -41,19 +41,19 @@ module.exports =
         console.log "activate phpunit"
 
         @phpUnitView = new PHPUnitView
-        atom.workspaceView.command "phpunit:alltests", => @runProject()
-        atom.workspaceView.command "phpunit:current", => @runEditor atom.workspace.getActiveTextEditor()
-        atom.workspaceView.command "phpunit:workspace", => @runWorkspace()
+        atom.commands.add 'atom-text-editor', 'phpunit:alltests', => @runProject()
+        atom.commands.add 'atom-text-editor', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
+        atom.commands.add 'atom-text-editor', 'phpunit:workspace', => @runWorkspace()
         atom.workspace.observeTextEditors (editor) =>
             editor.getBuffer()?.onDidSave => @runOnSave editor
 
     runOnSave: (editor) ->
-        onSave = atom.config.get "phpunit.runOnSave"
+        onSave = atom.config.get 'phpunit.runOnSave'
         @runProject() if onSave is true and isRunnable editor
 
     runProject: ->
         projectPaths = atom.project.getPaths()
-        options = atom.config.get "phpunit.execOptions"
+        options = atom.config.get 'phpunit.execOptions'
         @executeTests ['--configuration', projectPaths + '/phpunit.xml', options]
 
     runWorkspace: ->
@@ -69,7 +69,7 @@ module.exports =
     isRunnable: (editor) ->
       runnable = editor.getGrammar().name in @runnableGrammar
 
-      filterFolder = atom.project.getPaths() + '/' + atom.config.get "phpunit.fileDefaultFolder"
+      filterFolder = atom.project.getPaths() + '/' + atom.config.get 'phpunit.fileDefaultFolder'
       filterFolder.replace /([\\/])\1+/g, "$1"
       regexPath = ///^#{filterFolder}.*///
       runnable &&= regexPath.test(editor.getPath())
@@ -93,7 +93,7 @@ module.exports =
             @phpUnitView.append "<br>Complete<br>", false
 
     initView: ->
-        atom.workspaceView.prependToBottom @phpUnitView unless atom.workspaceView.find(".phpunit-container").is(":visible")
+        atom.workspace.addBottomPanel({ item: @phpUnitView })
         @phpUnitView.output.on 'click', 'a', ->
             [uri, line] = "#{$(this).text()}".split ':'
             line = Number(line)
