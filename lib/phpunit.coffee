@@ -49,7 +49,7 @@ module.exports =
 
     runOnSave: (editor) ->
         onSave = atom.config.get 'phpunit.runOnSave'
-        @runProject() if onSave is true and isRunnable editor
+        @runProject() if onSave is true and @isRunnable editor
 
     runProject: ->
         projectPaths = atom.project.getPaths()
