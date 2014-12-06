@@ -39,6 +39,8 @@ module.exports =
 
     activate: ->
         console.log "activate phpunit"
+
+        @phpUnitView = new PHPUnitView
         atom.workspaceView.command "phpunit:alltests", => @runProject()
         atom.workspaceView.command "phpunit:current", => @runEditor atom.workspace.getActiveTextEditor()
         atom.workspaceView.command "phpunit:workspace", => @runWorkspace()
@@ -70,31 +72,29 @@ module.exports =
       filterFolder = atom.project.getPaths() + '/' + atom.config.get "phpunit.fileDefaultFolder"
       filterFolder.replace /([\\/])\1+/g, "$1"
       regexPath = ///^#{filterFolder}.*///
-      runnable = runnable && regexPath.test(editor.getPath())
+      runnable &&= regexPath.test(editor.getPath())
 
       filterPattern = atom.config.get "phpunit.filePattern"
       regexName = ///#{filterPattern}///
-      runnable = runnable && regexName.test(editor.getTitle())
+      runnable &&= regexName.test(editor.getTitle())
 
     executeTests: (options) ->
         @initView()
         tail = @execPHPUnit options
 
         tail.stdout.on "data", (data) =>
-            @showOutput data
+            @phpUnitView.append data
 
         tail.stderr.on "data", (data) =>
-            @showOutput "<br><b>Runtime error</b><br><br>"
-            @showOutput data
+            @phpUnitView.append "<br><b>Runtime error</b><br><br>"
+            @phpUnitView.append data
 
         tail.on "close", (code) =>
-            @showOutput "<br>Complete<br>", false
+            @phpUnitView.append "<br>Complete<br>", false
 
     initView: ->
-        phpunitPanel = atom.workspaceView.find(".phpunit-container")
-        atom.workspaceView.find(".phpunit-contents").html("")
-        atom.workspaceView.prependToBottom new PHPUnitView unless phpunitPanel.is(":visible")
-        atom.workspaceView.find(".phpunit-contents").on 'click', 'a', ->
+        atom.workspaceView.prependToBottom @phpUnitView unless atom.workspaceView.find(".phpunit-container").is(":visible")
+        @phpUnitView.output.on 'click', 'a', ->
             [uri, line] = "#{$(this).text()}".split ':'
             line = Number(line)
             line = 0 unless line
@@ -103,13 +103,3 @@ module.exports =
     execPHPUnit: (params)->
         exec = atom.config.get "phpunit.execPath"
         spawn exec, params
-
-    showOutput: (data, parse = true) ->
-        breakTag = "<br>"
-        data = data + ""
-        if parse is true
-            data = data.replace /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, "$1" + breakTag + "$2"
-            data = data.replace /\son line\s(\d+)/g, ":$1"
-            data = data.replace /((([A-Z]\:)?([\\\/]+\w+)+(\.\w+)+(\:\d+)?))/g, "<a>$1</a>"
-        atom.workspaceView.find(".phpunit-contents").append data
-        atom.workspaceView.find(".phpunit-contents").scrollToBottom
