@@ -3,9 +3,11 @@
     {
         'label': 'Packages'
         'submenu': [
-            'label': 'phpunit'
+            'label': 'PHPUnit'
             'submenu': [
-                { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
+                { 'label': 'Run All Tests', 'command': 'phpunit:alltests' },
+                { 'label': 'Run Current Test', 'command': 'phpunit:current' }
+                { 'label': 'Run Open Tests', 'command': 'phpunit:workspace' }
             ]
         ]
     }
@@ -13,5 +15,5 @@
 
 'context-menu':
     '.overlayer': [
-            { 'label': 'Run PHPUnit Test', 'command': 'phpunit:test' }
+            { 'label': 'Run All Tests', 'command': 'phpunit:alltests' }
     ]
