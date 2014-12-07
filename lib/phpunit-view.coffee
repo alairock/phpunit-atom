@@ -10,6 +10,10 @@ class PHPUnitView extends View
                 @span class: 'icon icon-x'
             @button click: 'clear', class: 'btn btn-default pull-right', =>
                 @span class: 'icon icon-trashcan'
+            @button click: 'kill', class: 'btn btn-default pull-right', =>
+                @span class: 'icon icon-zap'
+            @button click: 'copy', class: 'btn btn-default pull-right', =>
+                @span class: 'icon icon-clippy'
             @div class: 'phpunit-contents', outlet: 'output'
 
     close: ->
@@ -17,7 +21,14 @@ class PHPUnitView extends View
           @detach()
 
     clear: ->
-        @output.html("")
+        @output.html ""
+
+    kill: ->
+        @output.append "KILL"
+        # atom.commands.dispatch('phpunit:kill')
+
+    copy: ->
+        atom.clipboard.write @output.text()
 
     append: (data, parse = true) ->
         breakTag = "<br>"
@@ -25,5 +36,5 @@ class PHPUnitView extends View
         if parse is true
             data = data.replace /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, "$1" + breakTag + "$2"
             data = data.replace /\son line\s(\d+)/g, ":$1"
-            data = data.replace /((([A-Z]\:)?([\\\/]+\w+)+(\.\w+)+(\:\d+)?))/g, "<a>$1</a>"
+            data = data.replace /((([A-Z]\\:)?([\\/]+(\w|-|_|\.)+)+(\.(\w|-|_)+)+(:\d+)?))/g, "<a>$1</a>"
         @output.append data

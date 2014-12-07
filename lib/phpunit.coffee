@@ -67,13 +67,14 @@ module.exports =
         @executeTests [options, file]
 
     isRunnable: (editor) ->
+      # check if editor grammar compatible with PHPUnit
       runnable = editor.getGrammar().name in @runnableGrammar
-
+      # check if editor file is in tests folder
       filterFolder = atom.project.getPaths() + '/' + atom.config.get 'phpunit.fileDefaultFolder'
       filterFolder.replace /([\\/])\1+/g, "$1"
       regexPath = ///^#{filterFolder}.*///
       runnable &&= regexPath.test(editor.getPath())
-
+      # check if editor file is a test file
       filterPattern = atom.config.get "phpunit.filePattern"
       regexName = ///#{filterPattern}///
       runnable &&= regexName.test(editor.getTitle())
@@ -90,7 +91,7 @@ module.exports =
             @phpUnitView.append data
 
         tail.on "close", (code) =>
-            @phpUnitView.append "<br>Complete<br>", false
+            @phpUnitView.append "<br>Complete<br><hr><br>", false
 
     initView: ->
         atom.workspace.addBottomPanel({ item: @phpUnitView })
