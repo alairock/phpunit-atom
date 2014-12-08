@@ -10,7 +10,7 @@ class PHPUnitView extends View
                 @span class: 'icon icon-x'
             @button click: 'clear', class: 'btn btn-default pull-right', =>
                 @span class: 'icon icon-trashcan'
-            @button click: 'kill', class: 'btn btn-default pull-right', =>
+            @button click: 'kill', class: 'btn btn-default pull-right', outlet: 'buttonKill', disabled: true, =>
                 @span class: 'icon icon-zap'
             @button click: 'copy', class: 'btn btn-default pull-right', =>
                 @span class: 'icon icon-clippy'
@@ -24,8 +24,7 @@ class PHPUnitView extends View
         @output.html ""
 
     kill: ->
-        @output.append "KILL"
-        # atom.commands.dispatch('phpunit:kill')
+        atom.commands.dispatch(atom.views.getView(atom.workspace), 'phpunit:kill')
 
     copy: ->
         atom.clipboard.write @output.text()

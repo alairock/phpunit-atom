@@ -1,4 +1,3 @@
-{spawn} = require 'child_process'
 $ = require 'jquery'
 PHPUnitView = require './phpunit-view'
 
@@ -41,9 +40,10 @@ module.exports =
         console.log "activate phpunit"
 
         @phpUnitView = new PHPUnitView
-        atom.commands.add 'atom-text-editor', 'phpunit:alltests', => @runProject()
-        atom.commands.add 'atom-text-editor', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
-        atom.commands.add 'atom-text-editor', 'phpunit:workspace', => @runWorkspace()
+        atom.commands.add 'atom-workspace', 'phpunit:alltests', => @runProject()
+        atom.commands.add 'atom-workspace', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
+        atom.commands.add 'atom-workspace', 'phpunit:workspace', => @runWorkspace()
+        atom.commands.add 'atom-workspace', 'phpunit:kill', => @killProcess()
         atom.workspace.observeTextEditors (editor) =>
             editor.getBuffer()?.onDidSave => @runOnSave editor
 
@@ -63,7 +63,7 @@ module.exports =
     runEditor: (editor) ->
       if @isRunnable editor
         file = editor.getPath()
-        options = atom.config.get "phpunit.execOptions"
+        options = atom.config.get 'phpunit.execOptions'
         @executeTests [options, file]
 
     isRunnable: (editor) ->
@@ -75,23 +75,27 @@ module.exports =
       regexPath = ///^#{filterFolder}.*///
       runnable &&= regexPath.test(editor.getPath())
       # check if editor file is a test file
-      filterPattern = atom.config.get "phpunit.filePattern"
+      filterPattern = atom.config.get 'phpunit.filePattern'
       regexName = ///#{filterPattern}///
       runnable &&= regexName.test(editor.getTitle())
 
     executeTests: (options) ->
         @initView()
-        tail = @execPHPUnit options
+        @phpunit = @execPHPUnit options
 
-        tail.stdout.on "data", (data) =>
+        @phpunit.stdout.on 'data', (data) =>
             @phpUnitView.append data
 
-        tail.stderr.on "data", (data) =>
-            @phpUnitView.append "<br><b>Runtime error</b><br><br>"
+        @phpunit.stderr.on 'data', (data) =>
+            @phpUnitView.append '<br><b>Runtime error</b><br><br>'
             @phpUnitView.append data
 
-        tail.on "close", (code) =>
-            @phpUnitView.append "<br>Complete<br><hr><br>", false
+        @phpunit.on 'close', (code, signal) =>
+            if signal then log = "Process killed with signal #{signal}"
+            else log = 'Complete.'
+            @phpUnitView.append "<br>#{log}<br><hr>", false
+            @phpUnitView.buttonKill.disable()
+
 
     initView: ->
         atom.workspace.addBottomPanel({ item: @phpUnitView })
@@ -102,5 +106,12 @@ module.exports =
             atom.workspace.open uri, {initialLine: line}
 
     execPHPUnit: (params)->
+        @phpUnitView.buttonKill.enable()
+        spawn = require('child_process').spawn
         exec = atom.config.get "phpunit.execPath"
         spawn exec, params
+
+    killProcess: ->
+        if @phpunit.pid
+          @phpUnitView.append 'Killing current PHPUnit execution...<br>'
+          @phpunit.kill 'SIGHUP'
