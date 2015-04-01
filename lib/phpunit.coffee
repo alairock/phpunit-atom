@@ -111,7 +111,7 @@ module.exports =
         exec = atom.config.get "phpunit.execPath"
         options =
           cwd: atom.project.getPaths()[0]
-        spawn exec, params
+        spawn exec, params, options
 
     killProcess: ->
         if @phpunit.pid
