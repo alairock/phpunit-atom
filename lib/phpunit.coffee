@@ -109,6 +109,8 @@ module.exports =
         @phpUnitView.buttonKill.enable()
         spawn = require('child_process').spawn
         exec = atom.config.get "phpunit.execPath"
+        options =
+          cwd: atom.project.getPaths()[0]
         spawn exec, params
 
     killProcess: ->
