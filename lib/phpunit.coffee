@@ -98,6 +98,7 @@ module.exports =
 
 
     initView: ->
+        @phpUnitView.clear()
         atom.workspace.addBottomPanel({ item: @phpUnitView })
         @phpUnitView.output.on 'click', 'a', ->
             [uri, line] = "#{$(this).text()}".split ':'
