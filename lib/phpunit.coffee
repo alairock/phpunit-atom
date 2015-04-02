@@ -73,11 +73,11 @@ module.exports =
       filterFolder = atom.project.getPaths() + '/' + atom.config.get 'phpunit.fileDefaultFolder'
       filterFolder.replace /([\\/])\1+/g, "$1"
       regexPath = ///^#{filterFolder}.*///
-      runnable &&= regexPath.test(editor.getPath())
+      runnable ||= regexPath.test(editor.getPath())
       # check if editor file is a test file
       filterPattern = atom.config.get 'phpunit.filePattern'
       regexName = ///#{filterPattern}///
-      runnable &&= regexName.test(editor.getTitle())
+      runnable ||= regexName.test(editor.getTitle())
 
     executeTests: (options) ->
         @initView()
