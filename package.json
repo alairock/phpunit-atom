@@ -1,7 +1,7 @@
 {
   "name": "phpunit",
   "main": "./lib/phpunit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "A simple PHPUnit test runner.",
   "repository": "https://github.com/alairock/phpunit-atom",
