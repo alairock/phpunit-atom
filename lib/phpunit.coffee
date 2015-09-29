@@ -44,6 +44,7 @@ module.exports =
         atom.commands.add 'atom-workspace', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
         atom.commands.add 'atom-workspace', 'phpunit:workspace', => @runWorkspace()
         atom.commands.add 'atom-workspace', 'phpunit:kill', => @killProcess()
+        atom.commands.add 'atom-workspace', 'phpunit:hide', => @hideView()
         atom.workspace.observeTextEditors (editor) =>
             editor.getBuffer()?.onDidSave => @runOnSave editor
 
@@ -118,3 +119,6 @@ module.exports =
         if @phpunit.pid
           @phpUnitView.append 'Killing current PHPUnit execution...<br>'
           @phpunit.kill 'SIGHUP'
+
+    hideView: ->
+        @phpUnitView.close()
