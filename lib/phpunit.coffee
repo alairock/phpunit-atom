@@ -82,20 +82,28 @@ module.exports =
 
     executeTests: (options) ->
         @initView()
-        @phpunit = @execPHPUnit options
-
-        @phpunit.stdout.on 'data', (data) =>
-            @phpUnitView.append data
-
-        @phpunit.stderr.on 'data', (data) =>
-            @phpUnitView.append '<br><b>Runtime error</b><br><br>'
-            @phpUnitView.append data
-
-        @phpunit.on 'close', (code, signal) =>
-            if signal then log = "Process killed with signal #{signal}"
-            else log = 'Complete.'
-            @phpUnitView.append "<br>#{log}<br><hr>", false
-            @phpUnitView.buttonKill.disable()
+        @execPHPUnit options
+        # @phpunit = @execPHPUnit options
+        #
+        # @phpunit.stdout.on 'data', (data) =>
+        #     # @phpUnitView.append data
+        #     # if @textEditor?
+        #     str = data.toString()
+        #     @textEditor.insertText(str)
+        #
+        # @phpunit.stderr.on 'data', (data) =>
+        #     # @phpUnitView.append '<br><b>Runtime error</b><br><br>'
+        #     # @phpUnitView.append data
+        #     if @textEditor?
+        #         @textEditor.insertText('Runtime error')
+        #         str = data.toString()
+        #         @textEditor.insertText(str)
+        #
+        # @phpunit.on 'close', (code, signal) =>
+        #     if signal then log = "Process killed with signal #{signal}"
+        #     else log = 'Complete.'
+        #     @phpUnitView.append "<br>#{log}<br><hr>", false
+        #     @phpUnitView.buttonKill.disable()
 
 
     initView: ->
@@ -107,13 +115,58 @@ module.exports =
             line = 0 unless line
             atom.workspace.open uri, {initialLine: line}
 
-    execPHPUnit: (params)->
-        @phpUnitView.buttonKill.enable()
-        spawn = require('child_process').spawn
-        exec = atom.config.get "phpunit.execPath"
+    textEditorDestroyed: ()-> @textEdtior = null
+
+    gotTextEditor: (textEdit, params)->
+        @textEditor = textEdit
+        @textEditor.onDidDestroy(@textEditorDestroyed)
         options =
           cwd: atom.project.getPaths()[0]
-        spawn exec, params, options
+        spawn = require('child_process').spawn
+        exec = atom.config.get "phpunit.execPath"
+        @phpunit = spawn exec, params, options
+
+        @phpunit.stdout.on 'data', (data) =>
+            # @phpUnitView.append data
+            if @textEditor?
+                str = data.toString()
+                @textEditor.insertText(str)
+
+        @phpunit.stderr.on 'data', (data) =>
+            # @phpUnitView.append '<br><b>Runtime error</b><br><br>'
+            # @phpUnitView.append data
+            if @textEditor?
+                @textEditor.insertText('Runtime error')
+                str = data.toString()
+                @textEditor.insertText(str)
+
+        @phpunit.on 'close', (code, signal) =>
+            if signal then log = "Process killed with signal #{signal}"
+            else log = 'Complete.'
+            @phpUnitView.append "<br>#{log}<br><hr>", false
+            @phpUnitView.buttonKill.disable()
+            if @textEditor?
+                @textEditor.insertText(log)
+
+    errOpeningTextEditor: ->
+        @textEditor = null
+
+    execPHPUnit: (params)->
+        @phpUnitView.buttonKill.enable()
+        # spawn = require('child_process').spawn
+        # exec = atom.config.get "phpunit.execPath"
+        if @textEditor?
+            @gotTextEditor(@textEditor, params)
+        else
+            atom.workspace.getActivePane().splitDown()
+            self = this
+            wrapper = (editor) ->
+                self.gotTextEditor(editor, params)
+            promise = atom.workspace.open()
+            promise.then(wrapper, @errOpeningTextEditor)
+        # options =
+        #   cwd: atom.project.getPaths()[0]
+        # spawn exec, params, options
 
     killProcess: ->
         if @phpunit.pid
