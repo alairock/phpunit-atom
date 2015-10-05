@@ -115,11 +115,13 @@ module.exports =
             line = 0 unless line
             atom.workspace.open uri, {initialLine: line}
 
-    textEditorDestroyed: ()-> @textEdtior = null
+    textEditorDestroyed: ()->
+        console.log('phpunit textEditor destroyed.')
+        @textEditor = null
 
     gotTextEditor: (textEdit, params)->
         @textEditor = textEdit
-        @textEditor.onDidDestroy(@textEditorDestroyed)
+        @textEditor.onDidDestroy( => @textEditorDestroyed() )
         options =
           cwd: atom.project.getPaths()[0]
         spawn = require('child_process').spawn
@@ -156,14 +158,15 @@ module.exports =
         # spawn = require('child_process').spawn
         # exec = atom.config.get "phpunit.execPath"
         if @textEditor?
+            @textEditor.selectAll()
+            @textEditor.delete()
             @gotTextEditor(@textEditor, params)
         else
             atom.workspace.getActivePane().splitDown()
-            self = this
-            wrapper = (editor) ->
-                self.gotTextEditor(editor, params)
             promise = atom.workspace.open()
-            promise.then(wrapper, @errOpeningTextEditor)
+            promise.then(
+                ( (editor) => @gotTextEditor(editor, params) ),
+                => @errOpeningTextEditor() )
         # options =
         #   cwd: atom.project.getPaths()[0]
         # spawn exec, params, options
