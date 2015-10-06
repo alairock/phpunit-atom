@@ -81,7 +81,7 @@ module.exports =
       runnable ||= regexName.test(editor.getTitle())
 
     executeTests: (options) ->
-        @initView()
+        # @initView()
         @execPHPUnit options
         # @phpunit = @execPHPUnit options
         #
@@ -145,8 +145,8 @@ module.exports =
         @phpunit.on 'close', (code, signal) =>
             if signal then log = "Process killed with signal #{signal}"
             else log = 'Complete.'
-            @phpUnitView.append "<br>#{log}<br><hr>", false
-            @phpUnitView.buttonKill.disable()
+            # @phpUnitView.append "<br>#{log}<br><hr>", false
+            # @phpUnitView.buttonKill.disable()
             if @textEditor?
                 @textEditor.insertText(log)
 
