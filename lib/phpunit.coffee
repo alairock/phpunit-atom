@@ -33,6 +33,11 @@ module.exports =
                           (any if empty)'
             type: 'string'
             default: 'tests/'
+        displayInTextBuffer:
+            title: 'Display in text buffer'
+            description: 'Display PHPUnit results in a text buffer'
+            type: 'boolean'
+            default: false
 
     runnableGrammar: ['PHP']
 
@@ -44,6 +49,7 @@ module.exports =
         atom.commands.add 'atom-workspace', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
         atom.commands.add 'atom-workspace', 'phpunit:workspace', => @runWorkspace()
         atom.commands.add 'atom-workspace', 'phpunit:kill', => @killProcess()
+        atom.commands.add 'atom-workspace', 'phpunit:hide', => @hideView()
         atom.workspace.observeTextEditors (editor) =>
             editor.getBuffer()?.onDidSave => @runOnSave editor
 
@@ -80,22 +86,9 @@ module.exports =
       runnable ||= regexName.test(editor.getTitle())
 
     executeTests: (options) ->
-        @initView()
-        @phpunit = @execPHPUnit options
-
-        @phpunit.stdout.on 'data', (data) =>
-            @phpUnitView.append data
-
-        @phpunit.stderr.on 'data', (data) =>
-            @phpUnitView.append '<br><b>Runtime error</b><br><br>'
-            @phpUnitView.append data
-
-        @phpunit.on 'close', (code, signal) =>
-            if signal then log = "Process killed with signal #{signal}"
-            else log = 'Complete.'
-            @phpUnitView.append "<br>#{log}<br><hr>", false
-            @phpUnitView.buttonKill.disable()
-
+        if not atom.config.get "phpunit.displayInTextBuffer"
+            @initView()
+        @prepareExecPHPUnit options
 
     initView: ->
         @phpUnitView.clear()
@@ -106,15 +99,93 @@ module.exports =
             line = 0 unless line
             atom.workspace.open uri, {initialLine: line}
 
-    execPHPUnit: (params)->
+    textEditorDestroyed: ()->
+        console.log('phpunit textEditor destroyed.')
+        @textEditor = null
+
+    # Run PHPUnit after text editor is ready.
+    gotTextEditor: (textEdit, params)->
+        @textEditor = textEdit
+        @textEditor.onDidDestroy( => @textEditorDestroyed() )
+        @execPHPUnit(params)
+
+    errOpeningTextEditor: ->
+        @textEditor = null
+        @editorPane = null
+
+    # If displaying in a text editor, ensure the text editor exists.
+    prepareExecPHPUnit: (params)->
         @phpUnitView.buttonKill.enable()
+        useTextEditor = atom.config.get "phpunit.displayInTextBuffer"
+        if useTextEditor
+            if @textEditor?
+                @textEditor.selectAll()
+                @textEditor.delete()
+                if @editorPane? and @textEditor in @editorPane.getItems()
+                    @editorPane.activate()
+                    @editorPane.activateItem(@textEditor)
+                else
+                    @editorPane = null
+                    # ToDo: if text editor moved, search all panes for it and
+                    # activate it.
+                @execPHPUnit(params)
+            else
+                @editorPane = atom.workspace.getActivePane().splitDown()
+                promise = atom.workspace.open()
+                promise.then(
+                    ( (editor) => @gotTextEditor(editor, params) ),
+                    => @errOpeningTextEditor() )
+        else
+            @execPHPUnit(params)
+
+    execPHPUnit: (params)->
+        options =
+            cwd: atom.project.getPaths()[0]
         spawn = require('child_process').spawn
         exec = atom.config.get "phpunit.execPath"
-        options =
-          cwd: atom.project.getPaths()[0]
-        spawn exec, params, options
+        useTextEditor = atom.config.get "phpunit.displayInTextBuffer"
+
+        @phpunit = spawn exec, params, options
+
+        @phpunit.stdout.on 'data', (data) =>
+            if useTextEditor
+                if @textEditor?
+                    str = data.toString()
+                    @textEditor.insertText(str)
+            else
+                @phpUnitView.append data
+
+        @phpunit.stderr.on 'data', (data) =>
+            if useTextEditor
+                if @textEditor?
+                    @textEditor.insertText('Runtime error')
+                    str = data.toString()
+                    @textEditor.insertText(str)
+            else
+                @phpUnitView.append '<br><b>Runtime error</b><br><br>'
+                @phpUnitView.append data
+
+        @phpunit.on 'close', (code, signal) =>
+            if signal then log = "Process killed with signal #{signal}"
+            else log = 'Complete.'
+            if useTextEditor
+                if @textEditor?
+                    @textEditor.insertText(log)
+            else
+                @phpUnitView.append "<br>#{log}<br><hr>", false
+                @phpUnitView.buttonKill.disable()
 
     killProcess: ->
         if @phpunit.pid
-          @phpUnitView.append 'Killing current PHPUnit execution...<br>'
-          @phpunit.kill 'SIGHUP'
+            if useTextEditor
+                if @textEditor?
+                    @textEditor.insertText('Killing current PHPUnit execution...')
+            else
+                @phpUnitView.append 'Killing current PHPUnit execution...<br>'
+                @phpunit.kill 'SIGHUP'
+
+    hideView: ->
+        @phpUnitView.close()
+
+    getTextEditor: ->
+        return @textEditor

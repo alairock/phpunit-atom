@@ -8,6 +8,7 @@
                 { 'label': 'Run All Tests', 'command': 'phpunit:alltests' },
                 { 'label': 'Run Current Test', 'command': 'phpunit:current' }
                 { 'label': 'Run Open Tests', 'command': 'phpunit:workspace' }
+                { 'label': 'Hide', 'command': 'phpunit:hide'}
             ]
         ]
     }
