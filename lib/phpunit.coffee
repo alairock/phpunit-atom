@@ -140,7 +140,7 @@ module.exports =
 
     execPHPUnit: (params)->
         options =
-          cwd: atom.project.getPaths()[0]
+            cwd: atom.project.getPaths()[0]
         spawn = require('child_process').spawn
         exec = atom.config.get "phpunit.execPath"
         useTextEditor = atom.config.get "phpunit.displayInTextBuffer"
@@ -177,8 +177,15 @@ module.exports =
 
     killProcess: ->
         if @phpunit.pid
-          @phpUnitView.append 'Killing current PHPUnit execution...<br>'
-          @phpunit.kill 'SIGHUP'
+            if useTextEditor
+                if @textEditor?
+                    @textEditor.insertText('Killing current PHPUnit execution...')
+            else
+                @phpUnitView.append 'Killing current PHPUnit execution...<br>'
+                @phpunit.kill 'SIGHUP'
 
     hideView: ->
         @phpUnitView.close()
+
+    getTextEditor: ->
+        return @textEditor
