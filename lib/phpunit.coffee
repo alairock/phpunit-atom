@@ -177,6 +177,7 @@ module.exports =
 
     killProcess: ->
         if @phpunit.pid
+            useTextEditor = atom.config.get "phpunit.displayInTextBuffer"
             if useTextEditor
                 if @textEditor?
                     @textEditor.insertText('Killing current PHPUnit execution...')
