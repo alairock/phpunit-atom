@@ -21,6 +21,11 @@ module.exports =
                           after saving a PHP file'
             type: 'boolean'
             default: false
+        codeceptionMode:
+            title: 'Codeception Mode'
+            description: 'Use Codeception instead of PHPUnit'
+            type: 'boolean'
+            default: false
         filePattern:
             title: 'Test filename pattern'
             description: 'RegExp pattern for PHPUnit tests in projects
@@ -60,7 +65,12 @@ module.exports =
     runProject: ->
         projectPaths = atom.project.getPaths()
         options = atom.config.get 'phpunit.execOptions'
-        @executeTests ['--configuration', projectPaths + '/phpunit.xml', options]
+        codeceptionMode = atom.config.get 'phpunit.codeceptionMode'
+        
+        if codeceptionMode is true
+          @executeTests ['--config', projectPaths + '/codeception.yml', options]
+        else
+          @executeTests ['--configuration', projectPaths + '/phpunit.xml', options]
 
     runWorkspace: ->
       for editor in atom.workspace.getTextEditors()
