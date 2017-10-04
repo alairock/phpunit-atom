@@ -141,9 +141,16 @@ module.exports =
     execPHPUnit: (params)->
         options =
             cwd: atom.project.getPaths()[0]
-        spawn = require('child_process').spawn
+        childProcess = require('child_process')
         exec = atom.config.get "phpunit.execPath"
         useTextEditor = atom.config.get "phpunit.displayInTextBuffer"
+        process.env.PATH = String(
+            childProcess.execFileSync(\
+                process.env.SHELL,
+                ['-c', 'source $HOME/.bash_profile; echo $PATH']
+            )
+        ).trim()
+        spawn = childProcess.spawn
 
         @phpunit = spawn exec, params, options
 
