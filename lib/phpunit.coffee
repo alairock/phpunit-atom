@@ -47,6 +47,7 @@ module.exports =
         @phpUnitView = new PHPUnitView
         atom.commands.add 'atom-workspace', 'phpunit:alltests', => @runProject()
         atom.commands.add 'atom-workspace', 'phpunit:current', => @runEditor atom.workspace.getActiveTextEditor()
+        atom.commands.add 'atom-workspace', 'phpunit:single-test-method', => @runSingleTestMethod atom.workspace.getActiveTextEditor()
         atom.commands.add 'atom-workspace', 'phpunit:workspace', => @runWorkspace()
         atom.commands.add 'atom-workspace', 'phpunit:kill', => @killProcess()
         atom.commands.add 'atom-workspace', 'phpunit:hide', => @hideView()
@@ -71,6 +72,22 @@ module.exports =
         file = editor.getPath()
         options = atom.config.get 'phpunit.execOptions'
         @executeTests [options, file]
+
+    runSingleTestMethod: (editor) ->
+      if @isRunnable editor
+        file = editor.getPath()
+        options = atom.config.get('phpunit.execOptions').split(/\s*,\s*/)
+        methodLine = editor.getText().split('\n').slice(
+            0, editor.getCursorBufferPosition().row + 2
+        ).reverse().join('\n').match(/function (.*)\(/)
+
+        if !methodLine || methodLine.length < 2
+            return @runEditor editor
+
+        options.push '--debug'
+        options.push '--filter=' + methodLine[1]
+        options.push file
+        @executeTests options
 
     isRunnable: (editor) ->
       # check if editor grammar compatible with PHPUnit
